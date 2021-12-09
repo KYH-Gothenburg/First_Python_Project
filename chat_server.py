@@ -11,10 +11,10 @@ def main():
 
     server_socket.listen()
 
+    # Wait for connection, BLOCKING
+    client_socket, client_address = server_socket.accept()
+    print(f'Client connect from {client_address}')
     while True:
-        # Wait for connection, BLOCKING
-        client_socket, client_address = server_socket.accept()
-        print(f'Client connect from {client_address}')
         # Get data from client, BLOCKING
         message = client_socket.recv(1024)
         message = message.decode('utf-8')
