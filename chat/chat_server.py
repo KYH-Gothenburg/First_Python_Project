@@ -7,27 +7,35 @@ HOST = "127.0.0.1"
 PORT = 9876
 
 
-def client_handler(client_socket, broadcast_queue):
+def client_handler(client_socket, broadcast_queue, client_list):
+    print("Started client handler thread")
     while True:
-        # Get data from client, BLOCKING
-        message = client_socket.recv(1024)
-        message = message.decode('utf-8')
-        print("Got message", message)
+        try:
+            # Get data from client, BLOCKING
+            message = client_socket.recv(1024)
+            message = message.decode('utf-8')
+            print("Got message", message)
 
-        # Create a dictionary that contains the socket
-        # used to receive the message, and the message
-        message_dict = {
-            'sender_socket': client_socket,
-            'message': message.encode('utf-8')
-        }
-        # Add the dictionary to the broadcast queue
-        broadcast_queue.put(message_dict)
+            # Create a dictionary that contains the socket
+            # used to receive the message, and the message
+            message_dict = {
+                'sender_socket': client_socket,
+                'message': message.encode('utf-8')
+            }
+            # Add the dictionary to the broadcast queue
+            broadcast_queue.put(message_dict)
+        except ConnectionResetError:
+            print("A client left the chat")
+            client_list.remove(client_socket)
+            break
 
 
 def broadcast(client_list, broadcast_queue):
+    print("Broadcast thread started")
     while True:
         # Wait for a message to broadcast
         message_dict = broadcast_queue.get()
+        print("Broadcast thread got a message to send")
         for client in client_list:
             if client != message_dict['sender_socket']:
                 client.send(message_dict['message'])
@@ -36,6 +44,7 @@ def broadcast(client_list, broadcast_queue):
 def main():
     # Create a socket that uses ip4 (AF_INET), and TCP (SOCK_STREAM)
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server_socket.bind((HOST, PORT))
 
     server_socket.listen()
@@ -54,9 +63,9 @@ def main():
         client_socket, client_address = server_socket.accept()
         print(f'Client connect from {client_address}')
         # Start thread for client
-        client_thread = threading.Thread(target=client_handler, args=(client_socket, broadcast_thread))
+        client_thread = threading.Thread(target=client_handler, args=(client_socket, broadcast_queue, client_list))
         # Add the new client_socket to the list of clients
-        client_list.append(client_thread)
+        client_list.append(client_socket)
         client_thread.start()
 
 
