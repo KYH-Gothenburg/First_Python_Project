@@ -1,0 +1,35 @@
+[
+    {
+        "id": 1,
+        "first_name": "Anna",
+        "last_name": "Andersson",
+        "age": 34,
+        "links": {
+          "person_data": "/persons/1"
+        }
+    },
+    {
+        "id": 2,
+        "first_name": "Bo",
+        "last_name": "Bengtsson",
+        "age": 56,
+        "links": {
+          "person_data": "/persons/2"
+        }
+    },
+    {
+        "id": 3,
+        "first_name": "Dana",
+        "last_name": "Davidsson",
+        "age": 23,
+        "links": {
+          "person_data": "/persons/3"
+        }
+    },
+    {
+        "id": 4,
+        "first_name": "Carl",
+        "last_name": "Andersson",
+        "age": 27
+    }
+]
