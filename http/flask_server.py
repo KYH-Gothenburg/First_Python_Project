@@ -15,23 +15,28 @@ def save_data(data):
         json.dump(data, json_file)
 
 
-@app.get('/persons')
+@app.get('/v1/persons')
 def index_get():
     # Get request argument for last_name
     last_name = flask.request.args.get('last_name')
     # Read data as Python list of dictionaries
     persons = read_data()
     # If request to filter on last name
-    if last_name:
+    if last_name is not None:
         # Create filtered list of persons matching the filter
-        persons = [person for person in persons if person['last_name'] == last_name]
+        persons = [person for person in persons if person['last_name'].lower() == last_name.lower()]
 
     # Convert the list of dictionaries to a Json string
     json_persons = json.dumps(persons)
     return flask.Response(json_persons, 200, content_type='application/json')
 
 
-@app.post('/persons')
+@app.get('/v2/users')
+def index2_get():
+    return index_get()
+
+
+@app.post('/v1/persons')
 def index_post():
     data = flask.request.json
     valid_keys = ['first_name', 'last_name', 'age']
